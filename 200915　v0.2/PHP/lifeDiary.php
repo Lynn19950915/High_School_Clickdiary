@@ -1,0 +1,369 @@
+<?php
+	session_start();
+    include "db.php";
+?>
+
+<!DOCTYPE html>
+<html>
+<head>
+	<title>生活日記</title>
+	<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="cache-control" content="no-cache">
+    
+	<!-- Bootsrap 4 CDN -->
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+	<script src="http://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    
+	<!-- Fontawesome CDN -->
+	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+    
+	<!-- Jquery-Confirm -->
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-confirm/3.3.2/jquery-confirm.min.css">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-confirm/3.3.2/jquery-confirm.min.js"></script>
+    
+    <style>
+        /* BASIC */
+        html{
+            min-height: 100%;
+            font-family: Microsoft JhengHei; position: relative;
+        }
+        
+        body{
+            padding-top: 100px; padding-bottom: 100px;
+        }
+        
+        /* STRUCTURE */
+        .modal-content{
+            width: 70%; margin: 40px auto;
+            letter-spacing: 0.05em;
+        }
+        
+        .modal-header{
+            background-color: #C4C400;
+        }
+        
+        .modal-body{
+            text-align: center;
+        }
+        
+        /* DETAILED */
+        #remind{
+            margin: 0px auto;
+            font-size: 1.2em; letter-spacing: 0.05em; text-align: center;
+        }
+        
+        label{
+            width: 18%;
+        }
+        
+        label:hover{
+            background-color: #C4C400;
+        }
+        
+        input{
+            width: 12%;
+        }
+    
+        #btn_submit{
+            width: 40vmin;
+            color: #f0f0f0; background-color: #C4C400;
+            -webkit-border-radius: 40px; border-radius: 40px;
+        }
+            
+        /* RESPONSIVE */
+		@media screen and (max-width: 550px){
+            .modal-content{
+                width: 80%; margin: 20px auto;
+                font-size: 0.8em;
+            }
+            
+            .modal-body{
+                text-align: left;
+            }
+            
+            #remind, #btn_submit{
+                font-size: 0.8em;
+            }
+            
+            h5{
+                font-size: 1.1em;
+            }
+            
+            label{
+                width: 90%;
+            }
+		}       
+    </style>
+    
+    <script>
+		$(document).ready(function(){            
+            $(".A2o").on("change", function(event){
+                event.preventDefault();
+                
+                if($(".A2o").prop("checked")==true){
+                    var cA2e=document.getElementsByClassName('A2e');
+                    for(var i=0, iLen=cA2e.length; i<iLen; i++){
+                        cA2e[i].checked=false;
+                        cA2e[i].disabled=true;
+                    }
+                }else{
+                    var cA2e=document.getElementsByClassName('A2e');
+                    for(var i=0, iLen=cA2e.length; i<iLen; i++){
+                        cA2e[i].disabled=false;
+                    }
+                }
+            })
+            
+            $(".A8o").on("change", function(event){
+                event.preventDefault();
+                
+                if($(".A8o").prop("checked")==true){
+                    var cA8e=document.getElementsByClassName('A8e');
+                    for(var i=0, iLen=cA8e.length; i<iLen; i++){
+                        cA8e[i].checked=false;
+                        cA8e[i].disabled=true;
+                    }
+                }else{
+                    var cA8e=document.getElementsByClassName('A8e');
+                    for(var i=0, iLen=cA8e.length; i<iLen; i++){
+                        cA8e[i].disabled=false;
+                    }
+                }
+            })
+            
+            $("#lifeDiaryForm").on("submit", function(event){
+                event.preventDefault();
+                check();
+                
+                $.ajax({ 
+					type: "POST",
+					url: "",
+					data: $('form#lifeDiaryForm').serialize(),
+                    success: function(data){ 
+						console.log("Submit", data)	
+						if(data=="Submit Success"){
+                            $.confirm({
+                                title: "",
+                                content: "今日生活日記完成填寫！",
+                                buttons: {
+                                    "OK": function(){
+                                        window.location.href='./main.php';
+                                    }
+								}
+                            })
+                        }
+                    },error: function(e){
+                            console.log(e)
+				    }
+				})
+                
+                function check(){
+                    var cA1=getValue("A1");
+                    var cA2M=getValueM("A2[]");
+                    var cA3=getValue("A3");
+                    var cA4=getValue("A4");
+                    var cA5=getValue("A5");
+                    var cA6=getValue("A6");
+                    var cA7=getValue("A7");
+                    var cA8M=getValueM("A8[]");
+                    var cA9=getValue("A9");
+                    
+                    if(cA1==0|cA2M==0|cA3==0|cA4==0|cA5==0|cA6==0|cA7==0|cA8M==0|cA9==0){
+                        var record=[], j=0;
+                        if(cA1==0){record[j]="1"; j++}
+                        if(cA2M==0){record[j]="2"; j++}
+                        if(cA3==0){record[j]="3"; j++}
+                        if(cA4==0){record[j]="4"; j++}
+                        if(cA5==0){record[j]="5"; j++}
+                        if(cA6==0){record[j]="6"; j++}
+                        if(cA7==0){record[j]="7"; j++}
+                        if(cA8M==0){record[j]="8"; j++}
+                        if(cA9==0){record[j]="9"; j++}
+                    }
+                    
+                    if(j>0){
+                        alert("你好，第"+record+"題尚未填答完畢唷！");
+                        return false}
+                    else{
+                        return true}
+                    }
+                
+                function getValue(name){
+                    var items=document.getElementsByName(name);
+                    for(var i=0, iLen=items.length; i<iLen; i++){
+                        var item=items[i];
+                        if(item.checked){
+                            return item.value}
+                        }return 0
+                    }
+            
+                function getValueM(name){
+                    var items=document.getElementsByName(name);
+                    var record=[], j=0;
+                    for(var i=0, iLen= items.length; i<iLen; i++){
+                        var item=items[i];
+                        if(item.checked){
+                        record[j]=item.value; j++}
+                        }
+                    if(j>0){
+                        return record
+                        }return 0
+                    }           
+                })                
+			})
+	</script>
+</head>
+
+
+<body>
+	<?php include("header.php");?>
+    
+    <form id="lifeDiaryForm" name="lifeDiaryForm">   
+    <div class="modal-content">
+        <div class="modal-header">
+            <div class="modal-title"><b>1. 我今天對人際關係的滿意程度：</b></div>
+        </div>
+        <div class="modal-body">
+        <fieldset data-role="controlgroup" data-type="horizontal">
+            <label><input type="radio" name="A1" value="1">很不滿意</label>
+            <label><input type="radio" name="A1" value="2">有點不滿意</label>
+            <label><input type="radio" name="A1" value="3">普通</label>
+            <label><input type="radio" name="A1" value="4">有點滿意</label>
+            <label><input type="radio" name="A1" value="5">很滿意</label>
+        </fieldset>
+        </div>
+    </div>
+    
+    <div class="modal-content" id="A2M">
+        <div class="modal-header">
+            <div class="modal-title"><b>2. 我今天是否有以下不適：（可複選）</b></div>
+        </div>
+        <div class="modal-body">
+        <fieldset data-role="controlgroup" data-type="horizontal">
+            <label><input type="checkbox" name="A2[]" class="A2e" value="1">發燒</label>
+            <label><input type="checkbox" name="A2[]" class="A2e" value="2">咳嗽</label>
+            <label><input type="checkbox" name="A2[]" class="A2e" value="3">喉嚨痛</label>
+            <label><input type="checkbox" name="A2[]" class="A2e" value="4">流鼻水</label>
+            <label><input type="checkbox" name="A2[]" class="A2o" value="0">以上皆無</label>
+        </fieldset>
+        </div>
+    </div>  
+        
+    <div class="modal-content">
+        <div class="modal-header">
+            <div class="modal-title"><b>3. 我今天有感受到壓力：</b></div>
+        </div>
+        <div class="modal-body">
+        <fieldset data-role="controlgroup" data-type="horizontal">
+            <label><input type="radio" name="A3" value="1">非常沒有壓力</label>
+            <label><input type="radio" name="A3" value="2">有點沒有壓力</label>
+            <label><input type="radio" name="A3" value="3">普通</label>
+            <label><input type="radio" name="A3" value="4">有點壓力</label>
+            <label><input type="radio" name="A3" value="5">非常有壓力</label>
+        </fieldset>
+        </div>
+    </div>
+    
+    <div class="modal-content">
+        <div class="modal-header">
+            <div class="modal-title"><b>4. 我今天對學習：</b></div>
+        </div>
+        <div class="modal-body">
+        <fieldset data-role="controlgroup" data-type="horizontal">
+            <label><input type="radio" name="A4" value="1">完全沒有熱忱</label>
+            <label><input type="radio" name="A4" value="2">有點沒有熱忱</label>
+            <label><input type="radio" name="A4" value="3">不低也不高</label>
+            <label><input type="radio" name="A4" value="4">有點熱忱</label>
+            <label><input type="radio" name="A4" value="5">充滿熱忱</label>
+        </fieldset>
+        </div>
+    </div>
+        
+    <div class="modal-content">
+        <div class="modal-header">
+            <div class="modal-title"><b>5. 我今天的自修時間：</b></div>
+        </div>
+        <div class="modal-body">
+        <fieldset data-role="controlgroup" data-type="horizontal">
+            <label><input type="radio" name="A5" value="1">不到 1 小時</label>
+            <label><input type="radio" name="A5" value="2">1～3 小時</label>
+            <label><input type="radio" name="A5" value="3">3～5 小時</label>
+            <label><input type="radio" name="A5" value="4">大於 5 小時</label>
+        </fieldset>
+        </div>
+    </div>
+    
+    <div class="modal-content">
+        <div class="modal-header">
+            <div class="modal-title"><b>6. 我今天的學習成果：</b></div>
+        </div>
+        <div class="modal-body">
+        <fieldset data-role="controlgroup" data-type="horizontal">
+            <label><input type="radio" name="A6" value="1">很不充實</label>
+            <label><input type="radio" name="A6" value="2">有點不充實</label>
+            <label><input type="radio" name="A6" value="3">不低也不高</label>
+            <label><input type="radio" name="A6" value="4">有點充實</label>
+            <label><input type="radio" name="A6" value="5">很充實</label>
+        </fieldset>
+        </div>
+    </div>
+        
+    <div class="modal-content">
+        <div class="modal-header">
+            <div class="modal-title"><b>7. 我今天的學習效率：</b></div>
+        </div>
+        <div class="modal-body">
+        <fieldset data-role="controlgroup" data-type="horizontal">
+            <label><input type="radio" name="A7" value="1">很低</label>
+            <label><input type="radio" name="A7" value="2">有點低</label>
+            <label><input type="radio" name="A7" value="3">不低也不高</label>
+            <label><input type="radio" name="A7" value="4">有點高</label>
+            <label><input type="radio" name="A7" value="5">很高</label>
+        </fieldset>
+        </div>
+    </div>
+        
+    <div class="modal-content" id="A8M">
+        <div class="modal-header">
+            <div class="modal-title"><b>8. 我今天是否有以下感受：（可複選）</b></div>
+        </div>
+        <div class="modal-body">
+        <fieldset data-role="controlgroup" data-type="horizontal">
+            <label><input type="checkbox" name="A8[]" class="A8e" value="1">坐立不安或感覺緊張</label>
+            <label><input type="checkbox" name="A8[]" class="A8e" value="2">易怒</label>
+            <label><input type="checkbox" name="A8[]" class="A8e" value="3">感到憂鬱</label>
+            <label><input type="checkbox" name="A8[]" class="A8e" value="4">注意力難以集中</label>
+            <label><input type="checkbox" name="A8[]" class="A8e" value="5">難以入睡</label>
+            <label><input type="checkbox" name="A8[]" class="A8e" value="6">睡不安穩</label>
+            <label><input type="checkbox" name="A8[]" class="A8e" value="7">容易感到疲勞</label>
+            <label><input type="checkbox" name="A8[]" class="A8o" value="0">以上皆無</label>
+        </fieldset>
+        </div>
+    </div>
+        
+    <div class="modal-content">
+        <div class="modal-header">
+            <div class="modal-title"><b>9. 整體而言，我覺得今天的心情：</b></div>
+        </div>
+        <div class="modal-body">
+        <fieldset data-role="controlgroup" data-type="horizontal">
+            <label><input type="radio" name="A9" value="1">很不好</label>
+            <label><input type="radio" name="A9" value="2">有點不好</label>
+            <label><input type="radio" name="A9" value="3">普通</label>
+            <label><input type="radio" name="A9" value="4">有點好</label>
+            <label><input type="radio" name="A9" value="5">很好</label>
+        </fieldset>
+        </div>
+    </div>
+        
+    <center>
+        <div><button id="btn_submit" class="btn" type="submit">完成</button></div>
+    </center>
+    </form>
+    
+	<?php include("footer.php");?>
+</body>
+</html>
