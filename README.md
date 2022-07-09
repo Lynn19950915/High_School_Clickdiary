@@ -39,7 +39,7 @@
         <td align="center"> <b>－積分明細－</b><br><br>依時間倒序條列用戶之積分增減<br><br>包含登入獎勵、日記牆結算、任務點數及兌換扣點等。 </td>
     </tr>
     <tr>
-        <td align="center"> <br><img src="https://upload.cc/i1/2022/07/09/Hj1Kga.png" width="25%">　<img src="https://upload.cc/i1/2022/07/09/xMRDNb.png" width="65%"><br><br> </td>
+        <td align="center"> <br><img src="https://upload.cc/i1/2022/07/09/Hj1Kga.png" width="25%"><br><img src="https://upload.cc/i1/2022/07/09/xMRDNb.png" width="70%"><br><br> </td>
         <td align="center"> <b>－工具串接－</b><br><br>1. Google Calendar API：於行事曆新增填寫提醒。<br><br>2. Google Analytics：管道導流、用戶裝置與地點等分析。 </td>
     </tr>
 </table>
